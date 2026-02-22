@@ -88,8 +88,8 @@ typings/
 
 # Expo
 .expo/
-dist/
-web-build/
+# dist/
+# web-build/
 
 # React Native
 .expo-shared/

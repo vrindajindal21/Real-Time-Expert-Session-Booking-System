@@ -211,14 +211,15 @@ app.delete('/api/bookings/:id', (req, res) => {
 
 const path = require('path');
 
-// Serve static assets
-app.use(express.static(path.join(__dirname, 'mobile/dist')));
+// Serve static assets from the mobile/dist folder
+const distPath = path.join(__dirname, 'mobile', 'dist');
+app.use(express.static(distPath));
 
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.resolve(__dirname, 'mobile', 'dist', 'index.html'));
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 const PORT = process.env.PORT || 5001;
