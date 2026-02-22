@@ -209,6 +209,18 @@ app.delete('/api/bookings/:id', (req, res) => {
   });
 });
 
+const path = require('path');
+
+// Serve static assets
+app.use(express.static(path.join(__dirname, 'mobile/dist')));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.resolve(__dirname, 'mobile', 'dist', 'index.html'));
+});
+
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Test API server running on http://localhost:${PORT}`);

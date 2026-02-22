@@ -5,10 +5,18 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/index.js",
+    "demo": "node test-api.js",
     "dev": "nodemon server/index.js",
-    "install-deps": "npm install && cd mobile && npm install"
+    "build": "cd mobile && npm install --legacy-peer-deps && npx expo export --platform web",
+    "install-all": "npm install && cd server && npm install && cd ../mobile && npm install --legacy-peer-deps"
   },
-  "keywords": ["react-native", "nodejs", "express", "mongodb", "socket.io"],
+  "keywords": [
+    "react-native",
+    "nodejs",
+    "express",
+    "mongodb",
+    "socket.io"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
