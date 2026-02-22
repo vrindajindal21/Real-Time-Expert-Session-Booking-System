@@ -5,7 +5,8 @@ const dotenv = require('dotenv');
 const http = require('http');
 const socketIo = require('socket.io');
 
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const server = http.createServer(app);
@@ -25,8 +26,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log('MongoDB connection error:', err));
 
 // Routes
 app.use('/api/experts', require('./routes/experts'));
@@ -35,12 +36,12 @@ app.use('/api/bookings', require('./routes/bookings'));
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-  
+
   socket.on('join-expert-room', (expertId) => {
     socket.join(`expert-${expertId}`);
     console.log(`Client ${socket.id} joined expert room: ${expertId}`);
   });
-  
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
@@ -49,7 +50,7 @@ io.on('connection', (socket) => {
 // Make io accessible to routes
 app.set('io', io);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -35,25 +35,25 @@ const mockBookings = [];
 // API Routes
 app.get('/api/experts', (req, res) => {
   const { search, category, page = 1, limit = 10 } = req.query;
-  
+
   let filteredExperts = mockExperts;
-  
+
   if (search) {
-    filteredExperts = filteredExperts.filter(expert => 
+    filteredExperts = filteredExperts.filter(expert =>
       expert.name.toLowerCase().includes(search.toLowerCase())
     );
   }
-  
+
   if (category && category !== 'all') {
-    filteredExperts = filteredExperts.filter(expert => 
+    filteredExperts = filteredExperts.filter(expert =>
       expert.category === category
     );
   }
-  
+
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + parseInt(limit);
   const paginatedExperts = filteredExperts.slice(startIndex, endIndex);
-  
+
   res.json({
     experts: paginatedExperts,
     pagination: {
@@ -66,31 +66,41 @@ app.get('/api/experts', (req, res) => {
 
 app.get('/api/experts/:id', (req, res) => {
   const expert = mockExperts.find(e => e._id === req.params.id);
-  
+
   if (!expert) {
     return res.status(404).json({ error: 'Expert not found' });
   }
-  
+
   // Mock time slots
   const today = new Date();
   const groupedTimeSlots = {};
-  
+
   for (let day = 0; day < 7; day++) {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() + day);
     const dateKey = currentDate.toISOString().split('T')[0];
-    
+
     groupedTimeSlots[dateKey] = [];
     for (let hour = 9; hour < 18; hour++) {
+      const startTime = `${hour.toString().padStart(2, '0')}:00`;
+
+      // Check if this specific slot is already in our mockBookings and NOT cancelled
+      const isBooked = mockBookings.some(b =>
+        b.expertId === req.params.id &&
+        b.date === dateKey &&
+        b.startTime === startTime &&
+        b.status !== 'Cancelled'
+      );
+
       groupedTimeSlots[dateKey].push({
         _id: `${dateKey}-${hour}`,
-        startTime: `${hour.toString().padStart(2, '0')}:00`,
+        startTime,
         endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
-        isBooked: Math.random() > 0.7 // Randomly mark some as booked
+        isBooked: isBooked
       });
     }
   }
-  
+
   res.json({
     ...expert,
     groupedTimeSlots
@@ -99,23 +109,23 @@ app.get('/api/experts/:id', (req, res) => {
 
 app.post('/api/bookings', (req, res) => {
   const { expertId, customerName, customerEmail, customerPhone, date, startTime, endTime, notes } = req.body;
-  
+
   // Basic validation
   if (!expertId || !customerName || !customerEmail || !customerPhone || !date || !startTime || !endTime) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-  
+
   // Check for double booking (mock)
-  const existingBooking = mockBookings.find(b => 
-    b.expertId === expertId && 
-    b.date === date && 
+  const existingBooking = mockBookings.find(b =>
+    b.expertId === expertId &&
+    b.date === date &&
     b.startTime === startTime
   );
-  
+
   if (existingBooking) {
     return res.status(409).json({ error: 'This time slot is already booked' });
   }
-  
+
   const booking = {
     _id: Date.now().toString(),
     bookingId: `BK${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
@@ -131,9 +141,9 @@ app.post('/api/bookings', (req, res) => {
     createdAt: new Date(),
     expertName: mockExperts.find(e => e._id === expertId)?.name || 'Unknown'
   };
-  
+
   mockBookings.push(booking);
-  
+
   res.status(201).json({
     message: 'Booking created successfully',
     booking
@@ -142,11 +152,11 @@ app.post('/api/bookings', (req, res) => {
 
 app.get('/api/bookings', (req, res) => {
   const { email } = req.query;
-  
+
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
-  
+
   const bookings = mockBookings
     .filter(booking => booking.customerEmail.toLowerCase() === email.toLowerCase())
     .map(booking => ({
@@ -157,34 +167,49 @@ app.get('/api/bookings', (req, res) => {
       }
     }))
     .sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
   res.json({ bookings });
 });
 
 app.patch('/api/bookings/:id/status', (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  
+
   const validStatuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
   }
-  
+
   const booking = mockBookings.find(b => b._id === id);
-  
+
   if (!booking) {
     return res.status(404).json({ error: 'Booking not found' });
   }
-  
+
   booking.status = status;
-  
+
   res.json({
     message: 'Booking status updated successfully',
     booking
   });
 });
 
-const PORT = process.env.PORT || 5000;
+app.delete('/api/bookings/:id', (req, res) => {
+  const { id } = req.params;
+  const index = mockBookings.findIndex(b => b._id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Booking not found' });
+  }
+
+  mockBookings.splice(index, 1);
+
+  res.json({
+    message: 'Booking deleted successfully'
+  });
+});
+
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Test API server running on http://localhost:${PORT}`);
   console.log('\n📱 Available endpoints:');

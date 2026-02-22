@@ -33,7 +33,7 @@ const MyBookingsScreen = ({ navigation }) => {
       const response = await api.get('/bookings', {
         params: { email: emailToSearch.toLowerCase() }
       });
-      setBookings(response.data.bookings);
+      setBookings(response.data.bookings || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       Alert.alert('Error', 'Failed to fetch bookings. Please try again.');
@@ -57,12 +57,12 @@ const MyBookingsScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please enter an email address');
       return;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchEmail)) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
-    
+
     setEmail(searchEmail);
     fetchBookings(searchEmail);
   };
@@ -153,9 +153,21 @@ const MyBookingsScreen = ({ navigation }) => {
               mode="outlined"
               onPress={() => handleCancelBooking(item._id)}
               style={styles.cancelButton}
+              labelStyle={{ color: '#d32f2f' }}
               compact
             >
               Cancel
+            </Button>
+          )}
+          {(item.status === 'Cancelled' || item.status === 'Completed') && (
+            <Button
+              mode="text"
+              onPress={() => handleDeleteBooking(item._id)}
+              style={styles.deleteButton}
+              labelStyle={{ color: '#757575' }}
+              compact
+            >
+              Remove
             </Button>
           )}
         </View>
@@ -183,12 +195,47 @@ const MyBookingsScreen = ({ navigation }) => {
               }
             } catch (error) {
               console.error('Error cancelling booking:', error);
-              Alert.alert('Error', 'Failed to cancel booking. Please try again.');
+              Alert.alert('Error', 'Failed to cancel booking');
             }
           },
         },
       ]
     );
+  };
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (Platform.OS === 'web') {
+      if (confirm('Are you sure you want to remove this booking from your history?')) {
+        try {
+          await api.delete(`/bookings/${bookingId}`);
+          alert('Booking removed successfully');
+          if (email) fetchBookings(email);
+        } catch (error) {
+          console.error('Error deleting booking:', error);
+          alert('Failed to delete booking');
+        }
+      }
+    } else {
+      Alert.alert(
+        'Remove Booking',
+        'Are you sure you want to remove this booking from your history?',
+        [
+          { text: 'No', style: 'cancel' },
+          {
+            text: 'Yes',
+            onPress: async () => {
+              try {
+                await api.delete(`/bookings/${bookingId}`);
+                if (email) fetchBookings(email);
+              } catch (error) {
+                console.error('Error deleting booking:', error);
+                Alert.alert('Error', 'Failed to delete booking');
+              }
+            },
+          },
+        ]
+      );
+    }
   };
 
   const renderEmptyState = () => (
@@ -231,7 +278,7 @@ const MyBookingsScreen = ({ navigation }) => {
       {email && (
         <View style={styles.resultsSection}>
           <Text style={styles.resultsTitle}>Bookings for {email}</Text>
-          
+
           {loading ? (
             <View style={styles.loading}>
               <ActivityIndicator size="large" />

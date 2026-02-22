@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { Card, Button, Chip, Divider } from 'react-native-paper';
 import api from '../config/api';
@@ -25,7 +26,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
       setLoading(true);
       const response = await api.get(`/experts/${expertId}`);
       setExpert(response.data);
-      
+
       // Set first available date as default
       const dates = Object.keys(response.data.groupedTimeSlots || {});
       if (dates.length > 0 && !selectedDate) {
@@ -96,7 +97,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
     } else if (dateString === tomorrow.toISOString().split('T')[0]) {
       return 'Tomorrow';
     }
-    
+
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
@@ -128,7 +129,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
   const availableSlots = selectedDate ? expert.groupedTimeSlots[selectedDate] || [] : [];
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Expert Info Card */}
       <Card style={styles.infoCard}>
         <Card.Content>
@@ -138,15 +139,15 @@ const ExpertDetailScreen = ({ route, navigation }) => {
               <Text style={styles.ratingText}>⭐ {expert.rating.toFixed(1)}</Text>
             </View>
           </View>
-          
+
           <Chip style={styles.category}>{expert.category}</Chip>
-          
+
           <Text style={styles.experience}>{expert.experience} years experience</Text>
-          
+
           <Divider style={styles.divider} />
-          
+
           <Text style={styles.bio}>{expert.bio}</Text>
-          
+
           <View style={styles.contactInfo}>
             <Text style={styles.contactText}>📧 {expert.email}</Text>
             <Text style={styles.contactText}>📞 {expert.phone}</Text>
@@ -190,7 +191,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
             <>
               <Divider style={styles.divider} />
               <Text style={styles.sectionTitle}>Available Time Slots</Text>
-              
+
               {availableSlots.length === 0 ? (
                 <Text style={styles.noSlots}>No available slots for this date</Text>
               ) : (
@@ -198,7 +199,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
                   {availableSlots.map((slot) => {
                     const isBooked = slot.isBooked || bookedSlots.has(`${selectedDate}-${slot.startTime}`);
                     const isSelected = selectedSlot?._id === slot._id;
-                    
+
                     return (
                       <TouchableOpacity
                         key={slot._id}
@@ -241,7 +242,7 @@ const ExpertDetailScreen = ({ route, navigation }) => {
         >
           {selectedSlot ? 'Proceed to Booking' : 'Select a Time Slot'}
         </Button>
-        
+
         <Button
           mode="outlined"
           onPress={() => navigation.goBack()}
@@ -258,6 +259,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    height: Platform.OS === 'web' ? '100vh' : 'auto',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   loading: {
     flex: 1,

@@ -29,23 +29,23 @@ const ExpertListScreen = ({ navigation }) => {
   const fetchExperts = useCallback(async (pageNum = 1, search = '', category = '', isRefresh = false) => {
     try {
       if (!isRefresh) setLoading(true);
-      
+
       const params = {
         page: pageNum,
         limit: 10,
       };
-      
+
       if (search) params.search = search;
       if (category && category !== 'All') params.category = category;
 
       const response = await api.get('/experts', { params });
-      
+
       if (isRefresh || pageNum === 1) {
         setExperts(response.data.experts);
       } else {
         setExperts(prev => [...prev, ...response.data.experts]);
       }
-      
+
       setPagination(response.data.pagination);
       setPage(pageNum);
     } catch (error) {
@@ -98,11 +98,11 @@ const ExpertListScreen = ({ navigation }) => {
               <Text style={styles.ratingText}>⭐ {item.rating.toFixed(1)}</Text>
             </View>
           </View>
-          
+
           <Chip style={styles.category}>{item.category}</Chip>
-          
+
           <Text style={styles.experience}>{item.experience} years experience</Text>
-          
+
           <Text style={styles.bio} numberOfLines={2}>{item.bio}</Text>
         </Card.Content>
       </TouchableOpacity>

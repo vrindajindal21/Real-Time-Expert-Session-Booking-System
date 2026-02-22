@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Expert Booking",
+    "slug": "expert-booking-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.anonymous.expertbookingmobile"
+    },
+    "web": {}
+  }
+}

@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppRegistry } from 'react-native';
 
 import ExpertListScreen from './src/screens/ExpertListScreen';
 import ExpertDetailScreen from './src/screens/ExpertDetailScreen';
@@ -45,3 +46,5 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+AppRegistry.registerComponent('ExpertBookingMobile', () => App);

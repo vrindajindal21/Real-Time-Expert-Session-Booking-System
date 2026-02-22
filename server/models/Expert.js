@@ -68,4 +68,7 @@ const expertSchema = new mongoose.Schema({
 // Index for better search performance
 expertSchema.index({ name: 'text', category: 1 });
 
+// Index for faster searching within time slots
+expertSchema.index({ 'timeSlots.date': 1 });
+
 module.exports = mongoose.model('Expert', expertSchema);
