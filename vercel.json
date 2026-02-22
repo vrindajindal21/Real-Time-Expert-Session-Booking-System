@@ -1,23 +1,13 @@
 {
     "version": 2,
-    "builds": [
+    "rewrites": [
         {
-            "src": "test-api.js",
-            "use": "@vercel/node"
+            "source": "/api/(.*)",
+            "destination": "/test-api.js"
         },
         {
-            "src": "mobile/dist/**",
-            "use": "@vercel/static"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "test-api.js"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "mobile/dist/$1"
+            "source": "/((?!api/).*)",
+            "destination": "/test-api.js"
         }
     ]
 }
