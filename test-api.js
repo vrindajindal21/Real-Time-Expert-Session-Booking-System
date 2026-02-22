@@ -222,13 +222,18 @@ app.get('*', (req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`🚀 Test API server running on http://localhost:${PORT}`);
-  console.log('\n📱 Available endpoints:');
-  console.log('GET  /api/experts - Get all experts');
-  console.log('GET  /api/experts/:id - Get expert details');
-  console.log('POST /api/bookings - Create booking');
-  console.log('GET  /api/bookings?email= - Get bookings by email');
-  console.log('PATCH /api/bookings/:id/status - Update booking status');
-  console.log('\n🧪 Test with curl or Postman!');
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Test API server running on http://localhost:${PORT}`);
+    console.log('\n📱 Available endpoints:');
+    console.log('GET  /api/experts - Get all experts');
+    console.log('GET  /api/experts/:id - Get expert details');
+    console.log('POST /api/bookings - Create booking');
+    console.log('GET  /api/bookings?email= - Get bookings by email');
+    console.log('PATCH /api/bookings/:id/status - Update booking status');
+    console.log('\n🧪 Test with curl or Postman!');
+  });
+}
+
+module.exports = app;
