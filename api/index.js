@@ -42,6 +42,43 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Production Seed Route
+app.get('/api/seed', async (req, res) => {
+  try {
+    await connectDB();
+    const Expert = require('./models/Expert');
+    const sampleExperts = [
+      {
+        name: 'Dr. Sarah Johnson',
+        category: 'Healthcare',
+        experience: 15,
+        rating: 4.8,
+        email: 'sarah.johnson@healthcare.com',
+        phone: '+1234567890',
+        bio: 'Experienced medical doctor specializing in internal medicine and preventive care.',
+        timeSlots: [],
+        isActive: true
+      },
+      {
+        name: 'John Smith',
+        category: 'Technology',
+        experience: 12,
+        rating: 4.9,
+        email: 'john.smith@tech.com',
+        phone: '+1234567891',
+        bio: 'Senior software engineer with expertise in cloud architecture and DevOps.',
+        timeSlots: [],
+        isActive: true
+      }
+    ];
+    await Expert.deleteMany({});
+    await Expert.insertMany(sampleExperts);
+    res.json({ success: true, message: 'Database seeded successfully with experts!' });
+  } catch (err) {
+    res.status(500).json({ error: 'Seed failed', message: err.message });
+  }
+});
+
 // Import Routes
 const expertRoutes = require('./routes/experts');
 const bookingRoutes = require('./routes/bookings');
