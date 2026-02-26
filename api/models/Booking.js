@@ -51,7 +51,7 @@ const bookingSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Compound index to prevent double booking - CRITICAL
+// Compound index to prevent double booking
 bookingSchema.index(
   { expertId: 1, date: 1, startTime: 1 },
   { unique: true }
@@ -60,4 +60,4 @@ bookingSchema.index(
 // Index for customer bookings lookup
 bookingSchema.index({ customerEmail: 1 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);

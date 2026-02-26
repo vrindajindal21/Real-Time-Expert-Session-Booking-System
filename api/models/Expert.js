@@ -65,10 +65,9 @@ const expertSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better search performance
-expertSchema.index({ name: 'text', category: 1 });
-
-// Index for faster searching within time slots
+// REMOVED text index to prevent "text index required" error or "index not supported" on free clusters
+expertSchema.index({ name: 1, category: 1 });
 expertSchema.index({ 'timeSlots.date': 1 });
 
-module.exports = mongoose.model('Expert', expertSchema);
+// Check if model already exists to avoid OverwriteModelError in serverless
+module.exports = mongoose.models.Expert || mongoose.model('Expert', expertSchema);
