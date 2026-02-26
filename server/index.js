@@ -4,18 +4,35 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketIo = require('socket.io');
-
 const path = require('path');
-dotenv.config({ path: path.join(__dirname, '.env') });
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+let io;
+
+// Only initialize Socket.io if not on Vercel OR if explicitly enabled
+if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_SOCKET === 'true') {
+  io = socketIo(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
+    socket.on('join-expert-room', (expertId) => {
+      socket.join(`expert-${expertId}`);
+    });
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
+  });
+
+  app.set('io', io);
+}
 
 // Middleware
 app.use(cors());
@@ -26,10 +43,10 @@ let isConnected = false;
 const connectDB = async () => {
   if (isConnected) return;
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not defined in environment variables');
+    }
+    const db = await mongoose.connect(process.env.MONGODB_URI);
     isConnected = db.connections[0].readyState;
     console.log('MongoDB connected');
   } catch (err) {
@@ -40,11 +57,19 @@ const connectDB = async () => {
 
 // Middleware to ensure DB connection
 app.use(async (req, res, next) => {
-  try {
-    await connectDB();
+  if (req.path.startsWith('/api')) {
+    try {
+      await connectDB();
+      next();
+    } catch (err) {
+      return res.status(500).json({
+        error: 'Database connection failed',
+        message: err.message,
+        tip: 'Check your MONGODB_URI environment variable and IP whitelist in Atlas.'
+      });
+    }
+  } else {
     next();
-  } catch (err) {
-    res.status(500).json({ error: 'Database connection failed', message: err.message });
   }
 });
 
@@ -52,37 +77,17 @@ app.use(async (req, res, next) => {
 app.use('/api/experts', require('./routes/experts'));
 app.use('/api/bookings', require('./routes/bookings'));
 
-// Socket.io connection handling
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+// Serve static assets in production
+app.use(express.static(path.join(__dirname, '../mobile/dist')));
 
-  socket.on('join-expert-room', (expertId) => {
-    socket.join(`expert-${expertId}`);
-    console.log(`Client ${socket.id} joined expert room: ${expertId}`);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.resolve(__dirname, '../mobile', 'dist', 'index.html'));
 });
 
-// Make io accessible to routes
-app.set('io', io);
-
 const PORT = process.env.PORT || 5001;
-
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production' || true) { // Defaulting to true for easier demo
-  app.use(express.static(path.join(__dirname, '../mobile/dist')));
-
-  app.get('*', (req, res, next) => {
-    // Only serve index.html if it's not an API call
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-    res.sendFile(path.resolve(__dirname, '../mobile', 'dist', 'index.html'));
-  });
-}
 
 if (require.main === module) {
   server.listen(PORT, () => {
