@@ -1,3 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const expertController = require('../controllers/expertController');
+const mongoose = require('mongoose');
+
 const Expert = require('../models/Expert');
 const Booking = require('../models/Booking');
 
@@ -26,3 +31,5 @@ router.get('/debug-connection', async (req, res) => {
 
 // GET /api/experts/:id - Get expert by ID with time slots
 router.get('/:id', expertController.getExpertById);
+
+module.exports = router;
