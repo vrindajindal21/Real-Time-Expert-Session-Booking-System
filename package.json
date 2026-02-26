@@ -1,6 +1,7 @@
 {
   "name": "expert-booking-system",
   "version": "1.0.0",
+  "homepage": "https://real-time-expert-session-booking.vercel.app/",
   "description": "Real-Time Expert Session Booking System",
   "main": "index.js",
   "scripts": {
