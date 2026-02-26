@@ -52,7 +52,8 @@ app.use('/api', async (req, res, next) => {
     res.status(500).json({
       error: 'Database connection failed',
       message: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      stack: err.stack, // SHOW STACK IN PROD FOR DIAGNOSIS
+      hint: 'Check your MONGODB_URI password and IP whitelist in Atlas.'
     });
   }
 });
