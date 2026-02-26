@@ -57,13 +57,23 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// Seed Route
+// Categories Route - Dynamic List for Frontend
+app.get('/api/categories', async (req, res) => {
+  try {
+    await connectDB();
+    const Expert = require('./models/Expert');
+    const categories = await Expert.distinct('category', { isActive: true });
+    res.json({ categories: ['All', ...categories] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Seed Route (Expanded for Universal Mode)
 app.get('/api/seed', async (req, res) => {
   try {
     await connectDB();
     const Expert = require('./models/Expert');
-
-    // Generate dates for next 7 days
     const dates = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date();
@@ -71,7 +81,6 @@ app.get('/api/seed', async (req, res) => {
       d.setHours(0, 0, 0, 0);
       dates.push(d);
     }
-
     const timeSlots = (date) => [
       { date, startTime: '09:00', endTime: '10:00', isBooked: false },
       { date, startTime: '11:00', endTime: '12:00', isBooked: false },
@@ -80,68 +89,42 @@ app.get('/api/seed', async (req, res) => {
     ];
 
     const sample = [
-      {
-        name: 'Dr. Sarah Johnson',
-        category: 'Healthcare',
-        experience: 15,
-        rating: 4.8,
-        email: 'sarah@expert.com',
-        phone: '1234567890',
-        bio: 'Specialist in telemedicine and mental health consultation with 15 years of clinical experience.',
-        isActive: true,
-        timeSlots: dates.flatMap(d => timeSlots(d))
-      },
-      {
-        name: 'John Tech',
-        category: 'Technology',
-        experience: 12,
-        rating: 4.9,
-        email: 'john@tech.com',
-        phone: '9876543210',
-        bio: 'Full-stack architect and cloud specialist. Helping startups scale their technical infrastructure.',
-        isActive: true,
-        timeSlots: dates.flatMap(d => timeSlots(d))
-      },
-      {
-        name: 'Prof. David Miller',
-        category: 'Education',
-        experience: 20,
-        rating: 5.0,
-        email: 'david@edu.com',
-        phone: '5551234567',
-        bio: 'University professor and educational consultant. Expert in curriculum design and student coaching.',
-        isActive: true,
-        timeSlots: dates.flatMap(d => timeSlots(d))
-      },
-      {
-        name: 'Emily Chen',
-        category: 'Finance',
-        experience: 8,
-        rating: 4.7,
-        email: 'emily@finance.com',
-        phone: '4449876543',
-        bio: 'Investment advisor and certified financial planner. Passionate about helping individuals achieve financial freedom.',
-        isActive: true,
-        timeSlots: dates.flatMap(d => timeSlots(d))
-      },
-      {
-        name: 'Marcus Thorne',
-        category: 'Consulting',
-        experience: 10,
-        rating: 4.6,
-        email: 'marcus@consulting.com',
-        phone: '3335557777',
-        bio: 'Business strategy consultant focusing on digital transformation and operational efficiency.',
-        isActive: true,
-        timeSlots: dates.flatMap(d => timeSlots(d))
-      }
+      { name: 'Dr. Sarah Smith', category: 'Healthcare', resourceType: 'Person', companyName: 'City Hospital', email: 'doc@city.com', phone: '1', bio: 'Doctor', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Code Wizards', category: 'Technology', resourceType: 'Service', companyName: 'CodeWiz Inc', email: 'code@wiz.com', phone: '2', bio: 'Tech Support', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Central Library', category: 'Library', resourceType: 'Place', companyName: 'Government', email: 'lib@city.com', phone: '3', bio: 'Book study slots', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Avengers: Secret Wars', category: 'Movie', resourceType: 'Item', companyName: 'CinemaPlus', email: 'movies@cinema.com', phone: '4', bio: 'Reserve a theater seat', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Prof. Miller', category: 'Consulting', resourceType: 'Person', companyName: 'Independent', email: 'miller@prof.com', phone: '5', bio: 'Counseling', timeSlots: dates.flatMap(d => timeSlots(d)) }
     ];
-
     await Expert.deleteMany({});
     await Expert.insertMany(sample);
-    res.json({ message: 'Database populated with 5 diverse experts and 140+ time slots!', count: sample.length });
+    res.json({ message: 'Universal Database seeded with 5 types of resources!', count: sample.length });
   } catch (err) {
     res.status(500).json({ error: 'Seed failed', message: err.message });
+  }
+});
+
+// Create Resource Route
+app.post('/api/experts', async (req, res) => {
+  try {
+    await connectDB();
+    const Expert = require('./models/Expert');
+    const newResource = new Expert(req.body);
+    await newResource.save();
+    res.status(201).json({ message: 'Resource created!', data: newResource });
+  } catch (err) {
+    res.status(500).json({ error: 'Create failed', message: err.message });
+  }
+});
+
+// Delete Resource Route
+app.delete('/api/experts/:id', async (req, res) => {
+  try {
+    await connectDB();
+    const Expert = require('./models/Expert');
+    await Expert.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Resource deleted!' });
+  } catch (err) {
+    res.status(500).json({ error: 'Delete failed', message: err.message });
   }
 });
 

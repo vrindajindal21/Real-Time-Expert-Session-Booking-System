@@ -14,10 +14,9 @@ import { Card, Button, Chip, Searchbar, Divider } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../config/api';
 
-const CATEGORIES = ['All', 'Technology', 'Healthcare', 'Finance', 'Education', 'Consulting', 'Other'];
-
 const ExpertListScreen = ({ navigation }) => {
   const [experts, setExperts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +24,19 @@ const ExpertListScreen = ({ navigation }) => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      setCategories(response.data.categories);
+    } catch (err) {
+      console.error('Error categories:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, [experts]);
 
   const fetchExperts = useCallback(async (pageNum = 1, search = '', category = '', isRefresh = false) => {
     try {
@@ -140,7 +152,7 @@ const ExpertListScreen = ({ navigation }) => {
 
       <View style={styles.categories}>
         <FlatList
-          data={CATEGORIES}
+          data={categories}
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item}
@@ -171,17 +183,26 @@ const ExpertListScreen = ({ navigation }) => {
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text>No experts found</Text>
+            <Text>No services found</Text>
           </View>
         }
       />
 
-      <TouchableOpacity
-        style={styles.myBookingsButton}
-        onPress={() => navigation.navigate('MyBookings')}
-      >
-        <Text style={styles.myBookingsText}>My Bookings</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.floatingButton, { backgroundColor: '#4caf50' }]}
+          onPress={() => navigation.navigate('ManageResource')}
+        >
+          <Text style={styles.buttonText}>Manage</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => navigation.navigate('MyBookings')}
+        >
+          <Text style={styles.buttonText}>My Bookings</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -268,17 +289,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 50,
   },
-  myBookingsButton: {
+  buttonContainer: {
     position: 'absolute',
     bottom: 20,
     right: 20,
+    flexDirection: 'row',
+  },
+  floatingButton: {
     backgroundColor: '#6200ee',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 25,
+    marginLeft: 10,
     elevation: 4,
   },
-  myBookingsText: {
+  buttonText: {
     color: 'white',
     fontWeight: 'bold',
   },

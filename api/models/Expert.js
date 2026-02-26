@@ -28,16 +28,24 @@ const expertSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Technology', 'Healthcare', 'Finance', 'Education', 'Consulting', 'Other']
+    // REMOVED strict enum to allow any industry (Doctors, Libraries, Movies, etc.)
+  },
+  resourceType: {
+    type: String,
+    enum: ['Person', 'Place', 'Item', 'Service'],
+    default: 'Person'
+  },
+  companyName: {
+    type: String,
+    default: 'Independent'
   },
   experience: {
     type: Number,
-    required: true,
-    min: 0
+    min: 0,
+    default: 0
   },
   rating: {
     type: Number,
-    required: true,
     min: 0,
     max: 5,
     default: 0
