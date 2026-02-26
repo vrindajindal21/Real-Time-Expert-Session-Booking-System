@@ -18,40 +18,58 @@ const connectDB = async () => {
   if (isConnected) return;
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is missing');
+      throw new Error('MONGODB_URI is missing from environment variables.');
     }
     const db = await mongoose.connect(process.env.MONGODB_URI);
     isConnected = db.connections[0].readyState;
+    console.log('Connected to MongoDB');
   } catch (err) {
-    console.error('DB Error:', err);
+    console.error('DB Connection Error:', err);
     throw err;
   }
 };
 
 // Diagnostic Route
 app.get('/api/test', (req, res) => {
-  res.json({ status: 'ok', env: process.env.NODE_ENV, hasUri: !!process.env.MONGODB_URI });
+  res.json({
+    status: 'ok',
+    env: process.env.NODE_ENV,
+    hasUri: !!process.env.MONGODB_URI,
+    uriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0
+  });
 });
 
-// Experts Route with explicit error catching
-app.get('/api/experts', async (req, res) => {
+// Import Routes
+const expertRoutes = require('./routes/experts');
+const bookingRoutes = require('./routes/bookings');
+
+// Use DB Connection middleware for API
+app.use('/api', async (req, res, next) => {
   try {
     await connectDB();
-    const Expert = require('./models/Expert');
-    const experts = await Expert.find({ isActive: true }).select('-timeSlots').limit(10);
-    res.json({ experts, total: experts.length });
+    next();
   } catch (err) {
-    res.status(500).json({ error: 'Crash', message: err.message, stack: err.stack });
+    res.status(500).json({
+      error: 'Database connection failed',
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 });
+
+// Mount Routes
+app.use('/api/experts', expertRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Serve static assets
 app.use(express.static(path.join(__dirname, '../mobile/dist')));
 
 app.get('*', (req, res) => {
+  // If it's an API route that didn't match above, return 404
   if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API route not found' });
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
+  // Otherwise serve the mobile web app
   res.sendFile(path.resolve(__dirname, '../mobile', 'dist', 'index.html'));
 });
 
