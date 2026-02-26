@@ -1,23 +1,28 @@
-const express = require('express');
-const router = express.Router();
-const expertController = require('../controllers/expertController');
-
 const Expert = require('../models/Expert');
+const Booking = require('../models/Booking');
 
 // GET /api/experts - Get all experts with pagination and filtering
 router.get('/', expertController.getExperts);
 
-// DEBUG ROUTE
-router.get('/debug-db', async (req, res) => {
+// DEBUG CONNECTION ROUTE
+router.get('/debug-connection', async (req, res) => {
     try {
-        const experts = await Expert.find({}).limit(1);
-        res.json({ count: experts.length, experts });
+        const expertCount = await Expert.countDocuments({});
+        const bookingCount = await Booking.countDocuments({});
+        res.json({
+            success: true,
+            expertCount,
+            bookingCount,
+            dbStatus: mongoose.connection.readyState // 1 = Connected
+        });
     } catch (err) {
-        res.status(500).json({ error: 'DB_ROUTER_FAIL', msg: err.message });
+        res.status(500).json({
+            error: 'DEBUG_CONNECTION_FAIL',
+            msg: err.message,
+            ready: mongoose.connection.readyState
+        });
     }
 });
 
 // GET /api/experts/:id - Get expert by ID with time slots
 router.get('/:id', expertController.getExpertById);
-
-module.exports = router;
