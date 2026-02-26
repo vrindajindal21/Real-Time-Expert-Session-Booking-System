@@ -2,11 +2,12 @@
     "version": 2,
     "builds": [
         {
-            "src": "test-api.js",
+            "src": "server/index.js",
             "use": "@vercel/node",
             "config": {
                 "includeFiles": [
-                    "mobile/dist/**"
+                    "mobile/dist/**",
+                    "server/**"
                 ]
             }
         }
@@ -14,11 +15,11 @@
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "test-api.js"
+            "dest": "server/index.js"
         },
         {
             "src": "/(.*)",
-            "dest": "test-api.js"
+            "dest": "server/index.js"
         }
     ]
 }
