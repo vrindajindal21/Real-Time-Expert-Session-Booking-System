@@ -33,7 +33,7 @@ const UserSelectionScreen = ({ navigation }) => {
 
                 <TouchableOpacity
                     style={styles.choiceCard}
-                    onPress={() => navigation.replace('ExpertList', { role: 'company' })}
+                    onPress={() => navigation.replace('CompanyDashboard', { role: 'company', companyId: 'city_hospital' })}
                 >
                     <Surface style={[styles.surface, { borderColor: '#4caf50' }]}>
                         <Text style={styles.icon}>💼</Text>

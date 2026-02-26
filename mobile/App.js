@@ -12,6 +12,7 @@ import BookingScreen from './src/screens/BookingScreen';
 import MyBookingsScreen from './src/screens/MyBookingsScreen';
 import ManageResourceScreen from './src/screens/ManageResourceScreen';
 import UserSelectionScreen from './src/screens/UserSelectionScreen';
+import CompanyDashboardScreen from './src/screens/CompanyDashboardScreen';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,11 @@ export default function App() {
               name="UserSelection"
               component={UserSelectionScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CompanyDashboard"
+              component={CompanyDashboardScreen}
+              options={{ title: 'Command Center' }}
             />
             <Stack.Screen
               name="ExpertList"

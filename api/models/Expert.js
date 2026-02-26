@@ -35,9 +35,19 @@ const expertSchema = new mongoose.Schema({
     enum: ['Person', 'Place', 'Item', 'Service'],
     default: 'Person'
   },
+  companyId: {
+    type: String,
+    required: true,
+    index: true,
+    default: 'independent'
+  },
   companyName: {
     type: String,
     default: 'Independent'
+  },
+  price: {
+    type: Number,
+    default: 50
   },
   experience: {
     type: Number,

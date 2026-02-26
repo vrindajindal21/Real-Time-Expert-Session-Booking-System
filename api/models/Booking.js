@@ -42,6 +42,16 @@ const bookingSchema = new mongoose.Schema({
     enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
     default: 'Pending'
   },
+  companyId: {
+    type: String,
+    required: true,
+    index: true,
+    default: 'independent'
+  },
+  price: {
+    type: Number,
+    default: 0
+  },
   bookingId: {
     type: String,
     unique: true,
