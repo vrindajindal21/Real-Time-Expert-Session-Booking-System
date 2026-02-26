@@ -2,37 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const http = require('http');
-const socketIo = require('socket.io');
 const path = require('path');
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
-let io;
-
-// Only initialize Socket.io if not on Vercel OR if explicitly enabled
-if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_SOCKET === 'true') {
-  io = socketIo(server, {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
-    }
-  });
-
-  io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
-    socket.on('join-expert-room', (expertId) => {
-      socket.join(`expert-${expertId}`);
-    });
-    socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
-    });
-  });
-
-  app.set('io', io);
-}
 
 // Middleware
 app.use(cors());
@@ -44,89 +18,41 @@ const connectDB = async () => {
   if (isConnected) return;
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
+      throw new Error('MONGODB_URI is missing');
     }
     const db = await mongoose.connect(process.env.MONGODB_URI);
     isConnected = db.connections[0].readyState;
-    console.log('MongoDB connected');
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    console.error('DB Error:', err);
     throw err;
   }
 };
 
-// Middleware to ensure DB connection
-app.use(async (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    try {
-      await connectDB();
-      next();
-    } catch (err) {
-      return res.status(500).json({
-        error: 'Database connection failed',
-        message: err.message,
-        tip: 'Check your MONGODB_URI environment variable and IP whitelist in Atlas.'
-      });
-    }
-  } else {
-    next();
-  }
+// Diagnostic Route
+app.get('/api/test', (req, res) => {
+  res.json({ status: 'ok', env: process.env.NODE_ENV, hasUri: !!process.env.MONGODB_URI });
 });
 
-// Routes
-app.use('/api/experts', require('./routes/experts'));
-app.use('/api/bookings', require('./routes/bookings'));
-
-// Diagnostic Seed Route (One-time setup)
-app.get('/api/debug/seed', async (req, res) => {
+// Experts Route with explicit error catching
+app.get('/api/experts', async (req, res) => {
   try {
+    await connectDB();
     const Expert = require('./models/Expert');
-    const sampleData = [
-      {
-        name: 'Dr. Sarah Johnson',
-        category: 'Healthcare',
-        experience: 15,
-        rating: 4.8,
-        email: 'sarah.johnson.prod@expert.com',
-        phone: '+1234567890',
-        bio: 'Production Expert: Internal medicine specialist.',
-        isActive: true
-      },
-      {
-        name: 'Tech Lead John',
-        category: 'Technology',
-        experience: 12,
-        rating: 4.9,
-        email: 'john.tech.prod@expert.com',
-        phone: '+1234567891',
-        bio: 'Production Expert: Cloud architect.',
-        isActive: true
-      }
-    ];
-    await Expert.deleteMany({});
-    await Expert.insertMany(sampleData);
-    res.json({ message: 'Database seeded successfully with 2 experts!' });
+    const experts = await Expert.find({ isActive: true }).select('-timeSlots').limit(10);
+    res.json({ experts, total: experts.length });
   } catch (err) {
-    res.status(500).json({ error: 'Seeding failed', message: err.message });
+    res.status(500).json({ error: 'Crash', message: err.message, stack: err.stack });
   }
 });
 
-// Serve static assets in production
+// Serve static assets
 app.use(express.static(path.join(__dirname, '../mobile/dist')));
 
-app.get('*', (req, res, next) => {
+app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
-    return next();
+    return res.status(404).json({ error: 'API route not found' });
   }
   res.sendFile(path.resolve(__dirname, '../mobile', 'dist', 'index.html'));
 });
-
-const PORT = process.env.PORT || 5001;
-
-if (require.main === module) {
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
 
 module.exports = app;
