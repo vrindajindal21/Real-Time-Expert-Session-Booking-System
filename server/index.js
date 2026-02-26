@@ -77,6 +77,40 @@ app.use(async (req, res, next) => {
 app.use('/api/experts', require('./routes/experts'));
 app.use('/api/bookings', require('./routes/bookings'));
 
+// Diagnostic Seed Route (One-time setup)
+app.get('/api/debug/seed', async (req, res) => {
+  try {
+    const Expert = require('./models/Expert');
+    const sampleData = [
+      {
+        name: 'Dr. Sarah Johnson',
+        category: 'Healthcare',
+        experience: 15,
+        rating: 4.8,
+        email: 'sarah.johnson.prod@expert.com',
+        phone: '+1234567890',
+        bio: 'Production Expert: Internal medicine specialist.',
+        isActive: true
+      },
+      {
+        name: 'Tech Lead John',
+        category: 'Technology',
+        experience: 12,
+        rating: 4.9,
+        email: 'john.tech.prod@expert.com',
+        phone: '+1234567891',
+        bio: 'Production Expert: Cloud architect.',
+        isActive: true
+      }
+    ];
+    await Expert.deleteMany({});
+    await Expert.insertMany(sampleData);
+    res.json({ message: 'Database seeded successfully with 2 experts!' });
+  } catch (err) {
+    res.status(500).json({ error: 'Seeding failed', message: err.message });
+  }
+});
+
 // Serve static assets in production
 app.use(express.static(path.join(__dirname, '../mobile/dist')));
 
