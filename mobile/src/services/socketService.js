@@ -8,11 +8,11 @@ class SocketService {
 
   connect() {
     if (!this.socket) {
-      const socketUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+      const SOCKET_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
         ? window.location.origin
         : 'http://localhost:5001';
 
-      this.socket = io(socketUrl, {
+      this.socket = io(SOCKET_URL, {
         transports: ['websocket'],
         jsonp: false,
       });

@@ -50,6 +50,8 @@ io.on('connection', (socket) => {
 // Make io accessible to routes
 app.set('io', io);
 
+const PORT = process.env.PORT || 5001;
+
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production' || true) { // Defaulting to true for easier demo
   app.use(express.static(path.join(__dirname, '../mobile/dist')));
@@ -63,7 +65,6 @@ if (process.env.NODE_ENV === 'production' || true) { // Defaulting to true for e
   });
 }
 
-const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

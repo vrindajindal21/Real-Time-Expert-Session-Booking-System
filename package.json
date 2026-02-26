@@ -5,10 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/index.js",
-    "demo": "node test-api.js",
     "dev": "nodemon server/index.js",
-    "build": "cd mobile && npm install --legacy-peer-deps && npx expo export --platform web",
-    "install-all": "npm install && cd server && npm install && cd ../mobile && npm install --legacy-peer-deps"
+    "install-deps": "npm install && cd mobile && npm install"
   },
   "keywords": [
     "react-native",
