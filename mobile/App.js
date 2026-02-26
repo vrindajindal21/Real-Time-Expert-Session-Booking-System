@@ -11,6 +11,7 @@ import ExpertDetailScreen from './src/screens/ExpertDetailScreen';
 import BookingScreen from './src/screens/BookingScreen';
 import MyBookingsScreen from './src/screens/MyBookingsScreen';
 import ManageResourceScreen from './src/screens/ManageResourceScreen';
+import UserSelectionScreen from './src/screens/UserSelectionScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,31 +21,36 @@ export default function App() {
       <PaperProvider>
         <NavigationContainer>
           <StatusBar style="auto" />
-          <Stack.Navigator initialRouteName="ExpertList">
+          <Stack.Navigator initialRouteName="UserSelection">
+            <Stack.Screen
+              name="UserSelection"
+              component={UserSelectionScreen}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="ExpertList"
               component={ExpertListScreen}
-              options={{ title: 'Book a Service' }}
+              options={{ title: 'Services' }}
             />
             <Stack.Screen
               name="ExpertDetail"
               component={ExpertDetailScreen}
-              options={{ title: 'Service Details' }}
+              options={{ title: 'Details' }}
             />
             <Stack.Screen
               name="Booking"
               component={BookingScreen}
-              options={{ title: 'Book Slot' }}
+              options={{ title: 'Book Now' }}
             />
             <Stack.Screen
               name="MyBookings"
               component={MyBookingsScreen}
-              options={{ title: 'My Bookings' }}
+              options={{ title: 'My Schedule' }}
             />
             <Stack.Screen
               name="ManageResource"
               component={ManageResourceScreen}
-              options={{ title: 'Manage Listings' }}
+              options={{ title: 'Control Panel' }}
             />
           </Stack.Navigator>
         </NavigationContainer>

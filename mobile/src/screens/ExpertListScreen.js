@@ -14,9 +14,12 @@ import { Card, Button, Chip, Searchbar, Divider } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../config/api';
 
-const ExpertListScreen = ({ navigation }) => {
+const DEFAULT_CATEGORIES = ['Technology', 'Healthcare', 'Finance', 'Education', 'Consulting', 'Other'];
+
+const ExpertListScreen = ({ navigation, route }) => {
+  const { role } = route.params || { role: 'user' };
   const [experts, setExperts] = useState([]);
-  const [categories, setCategories] = useState(['All']);
+  const [categories, setCategories] = useState(['All', ...DEFAULT_CATEGORIES]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,7 +31,10 @@ const ExpertListScreen = ({ navigation }) => {
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
-      setCategories(response.data.categories);
+      const dynamicCategories = response.data.categories.filter(c => c !== 'All');
+      // Merge defaults with dynamic ones, removing duplicates
+      const merged = Array.from(new Set(['All', ...DEFAULT_CATEGORIES, ...dynamicCategories]));
+      setCategories(merged);
     } catch (err) {
       console.error('Error categories:', err);
     }
@@ -189,12 +195,14 @@ const ExpertListScreen = ({ navigation }) => {
       />
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.floatingButton, { backgroundColor: '#4caf50' }]}
-          onPress={() => navigation.navigate('ManageResource')}
-        >
-          <Text style={styles.buttonText}>Manage</Text>
-        </TouchableOpacity>
+        {role === 'company' && (
+          <TouchableOpacity
+            style={[styles.floatingButton, { backgroundColor: '#4caf50' }]}
+            onPress={() => navigation.navigate('ManageResource')}
+          >
+            <Text style={styles.buttonText}>Manage</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           style={styles.floatingButton}

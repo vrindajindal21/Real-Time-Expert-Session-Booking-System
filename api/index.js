@@ -89,15 +89,16 @@ app.get('/api/seed', async (req, res) => {
     ];
 
     const sample = [
-      { name: 'Dr. Sarah Smith', category: 'Healthcare', resourceType: 'Person', companyName: 'City Hospital', email: 'doc@city.com', phone: '1', bio: 'Doctor', timeSlots: dates.flatMap(d => timeSlots(d)) },
-      { name: 'Code Wizards', category: 'Technology', resourceType: 'Service', companyName: 'CodeWiz Inc', email: 'code@wiz.com', phone: '2', bio: 'Tech Support', timeSlots: dates.flatMap(d => timeSlots(d)) },
-      { name: 'Central Library', category: 'Library', resourceType: 'Place', companyName: 'Government', email: 'lib@city.com', phone: '3', bio: 'Book study slots', timeSlots: dates.flatMap(d => timeSlots(d)) },
-      { name: 'Avengers: Secret Wars', category: 'Movie', resourceType: 'Item', companyName: 'CinemaPlus', email: 'movies@cinema.com', phone: '4', bio: 'Reserve a theater seat', timeSlots: dates.flatMap(d => timeSlots(d)) },
-      { name: 'Prof. Miller', category: 'Consulting', resourceType: 'Person', companyName: 'Independent', email: 'miller@prof.com', phone: '5', bio: 'Counseling', timeSlots: dates.flatMap(d => timeSlots(d)) }
+      { name: 'Dr. Sarah Smith', category: 'Healthcare', resourceType: 'Person', companyName: 'City Hospital', email: 'doc@city.com', phone: '1', bio: 'Healthcare Specialist', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'John Tech', category: 'Technology', resourceType: 'Person', companyName: 'CodeWiz Inc', email: 'john@tech.com', phone: '2', bio: 'Cloud Architect', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Finance Pro', category: 'Finance', resourceType: 'Person', companyName: 'Wealth Management', email: 'investor@fin.com', phone: '3', bio: 'Investment Advisor', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Prof. Miller', category: 'Education', resourceType: 'Person', companyName: 'Global Edu', email: 'miller@edu.com', phone: '4', bio: 'Certified Tutor', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Strategic Consult', category: 'Consulting', resourceType: 'Service', companyName: 'BizPros', email: 'biz@consult.com', phone: '5', bio: 'Strategy Consultant', timeSlots: dates.flatMap(d => timeSlots(d)) },
+      { name: 'Miscellaneous SVC', category: 'Other', resourceType: 'Service', companyName: 'General Svcs', email: 'svcs@other.com', phone: '6', bio: 'General Service Provider', timeSlots: dates.flatMap(d => timeSlots(d)) }
     ];
     await Expert.deleteMany({});
     await Expert.insertMany(sample);
-    res.json({ message: 'Universal Database seeded with 5 types of resources!', count: sample.length });
+    res.json({ message: 'Database seeded with your requested categories!', count: sample.length });
   } catch (err) {
     res.status(500).json({ error: 'Seed failed', message: err.message });
   }
