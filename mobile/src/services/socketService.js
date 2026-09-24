@@ -1,4 +1,5 @@
 import io from 'socket.io-client';
+import { WS_CONFIG } from '../config/api';
 
 class SocketService {
   constructor() {
@@ -8,14 +9,7 @@ class SocketService {
 
   connect() {
     if (!this.socket) {
-      const SOCKET_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-        ? window.location.origin
-        : 'http://localhost:5001';
-
-      this.socket = io(SOCKET_URL, {
-        transports: ['websocket'],
-        jsonp: false,
-      });
+      this.socket = io(WS_CONFIG.url, WS_CONFIG.options);
 
       this.socket.on('connect', () => {
         console.log('Connected to server');

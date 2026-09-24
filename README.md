@@ -1,210 +1,94 @@
 # Real-Time Expert Session Booking System
 
-A comprehensive mobile application and backend system for booking expert consultation sessions with real-time slot updates.
+A modern, responsive multi-page web application for discovering verified industry mentors, reserving real-time consultation slots, and managing 1:1 sessions.
 
-## Tech Stack
+---
 
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - Database
-- **Socket.io** - Real-time communication
-- **Mongoose** - MongoDB ODM
-- **Joi** - Input validation
+## 🌟 Core Frontend Pages (Web Application)
 
-### Mobile App
-- **React Native** - Mobile framework
-- **Expo** - Development platform
-- **React Navigation** - Navigation
-- **React Native Paper** - UI components
-- **Socket.io Client** - Real-time client
+The frontend is built using **React.js, Vite, Vanilla CSS, Lucide Icons, and Framer Motion**:
 
-## Features
+1. **Home / Landing Page (`/`)**
+   - Hero banner with real-time availability metrics.
+   - Interactive availability simulator card.
+   - Domain category pills (IT & Cloud Architecture, Healthcare, Legal, Finance, EdTech).
+   - 3-step consultation workflow pipeline.
 
-### Expert Listing Screen
-- ✅ Display experts with name, category, experience, and rating
-- ✅ Search experts by name
-- ✅ Filter by category
-- ✅ Pagination support
-- ✅ Loading and error states
+2. **Search & Filter Providers (`/search`)**
+   - Instant client-side search across mentor names, skills, and affiliations.
+   - Domain category filters, experience dropdown, and price range slider.
+   - Responsive expert cards with ratings, review counts, and direct booking links.
 
-### Expert Detail Screen
-- ✅ Show comprehensive expert details
-- ✅ Display available time slots grouped by date
-- ✅ Real-time slot updates when booked by other users
-- ✅ Visual indicators for booked and past slots
+3. **Expert Profile & Slot Booking Studio (`/hub/:id`)**
+   - Detailed mentor dossier, clinical/corporate credentials, and client reviews.
+   - Consultation package selection (price and duration tiers).
+   - Interactive calendar date picker.
+   - Visual time slots with 3 distinct availability states (Available 🟢, Selected 🔵, Booked ⚪).
+   - Client-side form validation (Full Name, Email, Phone, Agenda).
+   - Instant confirmation pass with meeting room link and printable slip.
 
-### Booking Screen
-- ✅ Form validation for all fields
-- ✅ Success message after booking
-- ✅ Automatic slot disabling after booking
-- ✅ Double booking prevention
+4. **Client Sessions Dashboard (`/dashboard`)**
+   - Overview KPI summary cards (Total Bookings, Upcoming Sessions, Hours Mentored).
+   - Status filter tabs: *All*, *Upcoming (Confirmed)*, *Completed*, *Cancelled*.
+   - Direct 1-click **"Join Video Call"** button (Google Meet room).
+   - Download pass slip and cancel/reschedule session controls with LocalStorage state persistence.
 
-### My Bookings Screen
-- ✅ Search bookings by email
-- ✅ Display booking status (Pending, Confirmed, Completed, Cancelled)
-- ✅ Cancel pending bookings
-- ✅ Expert contact information
+---
 
-### Backend Features
-- ✅ Proper folder structure (routes/controllers/models)
-- ✅ All required API endpoints
-- ✅ Double booking prevention with race condition handling
-- ✅ Real-time slot updates via Socket.io
-- ✅ Comprehensive error handling
-- ✅ Environment variable configuration
+## 🛠️ Technology Stack
 
-## Project Structure
+- **Frontend Library:** React.js (v19)
+- **Build Tool:** Vite (v8)
+- **Styling:** Vanilla CSS, CSS Variables, Glassmorphism & Flexbox/Grid
+- **Icons & Motion:** Lucide React & Framer Motion
+- **Routing:** React Router DOM (v7)
+- **State & Storage:** Client-side LocalStorage state persistence and mock data store (`mockData.js`)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Run the Frontend Web Application
+```bash
+# Navigate to the web frontend directory
+cd web
+
+# Install dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+Open **`http://localhost:5173`** in your browser.
+
+### 2. Build for Production
+```bash
+cd web
+npm run build
+npm run preview
+```
+
+---
+
+## 📁 Repository Structure
 
 ```
-expert-booking-system/
-├── server/
-│   ├── controllers/
-│   │   ├── expertController.js
-│   │   └── bookingController.js
-│   ├── models/
-│   │   ├── Expert.js
-│   │   └── Booking.js
-│   ├── routes/
-│   │   ├── experts.js
-│   │   └── bookings.js
-│   ├── index.js
-│   └── seed.js
-├── mobile/
+├── web/                   # Frontend React Application
 │   ├── src/
-│   │   ├── config/
-│   │   │   └── api.js
-│   │   ├── services/
-│   │   │   └── socketService.js
-│   │   └── screens/
-│   │       ├── ExpertListScreen.js
-│   │       ├── ExpertDetailScreen.js
-│   │       ├── BookingScreen.js
-│   │       └── MyBookingsScreen.js
-│   ├── App.js
-│   ├── App.json
-│   └── package.json
-├── package.json
-├── .env
-└── README.md
+│   │   ├── components/    # Reusable UI components (Navbar, Modals, Cards)
+│   │   ├── pages/         # 4 Core Pages (Landing, Search, Profile, Dashboard)
+│   │   ├── context/       # Auth and state management
+│   │   ├── data/          # Mock data store (verified experts, slots)
+│   │   └── styles/        # Global stylesheet and variables
+│   ├── public/            # Static icons and assets
+│   ├── index.html         # Web application entry point
+│   ├── package.json       # Dependencies and scripts
+│   └── vite.config.js     # Vite bundler configuration
+├── server/                # Backend API (Node.js & Express)
+└── README.md              # Project documentation
 ```
 
-## API Endpoints
+---
 
-### Experts
-- `GET /api/experts` - Get all experts with pagination and filtering
-- `GET /api/experts/:id` - Get expert details with time slots
-
-### Bookings
-- `POST /api/bookings` - Create a new booking
-- `GET /api/bookings?email=` - Get bookings by email
-- `PATCH /api/bookings/:id/status` - Update booking status
-
-## Installation & Setup
-
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or cloud instance)
-- Expo CLI (for mobile development)
-
-### Backend Setup
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your MongoDB URI and other configurations
-   ```
-
-4. Seed the database with sample experts:
-   ```bash
-   node server/seed.js
-   ```
-
-5. Start the backend server:
-   ```bash
-   npm run dev
-   ```
-
-### Mobile App Setup
-
-1. Navigate to mobile directory:
-   ```bash
-   cd mobile
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the Expo development server:
-   ```bash
-   npm start
-   ```
-
-4. Use Expo Go app on your mobile device to scan the QR code
-
-## Key Features Implementation
-
-### Double Booking Prevention
-- MongoDB compound indexes to prevent duplicate bookings
-- Database transactions for atomic operations
-- Real-time validation checks
-
-### Real-Time Updates
-- Socket.io integration for instant slot availability updates
-- Room-based communication for expert-specific updates
-- Automatic UI refresh when slots are booked
-
-### Error Handling
-- Comprehensive validation on both client and server
-- Meaningful error messages
-- Graceful degradation for network issues
-
-### Performance Optimizations
-- Pagination for large expert lists
-- Efficient database queries with proper indexing
-- Optimized real-time communication
-
-## Testing
-
-The system includes comprehensive error handling and validation. Test scenarios include:
-- Creating bookings with valid/invalid data
-- Double booking attempts
-- Real-time slot updates
-- Network failure scenarios
-- Edge cases with past dates and invalid inputs
-
-## Deployment
-
-### Backend Deployment Options
-- Heroku
-- AWS EC2
-- DigitalOcean
-- Any Node.js hosting service
-
-### Mobile App Deployment
-- App Store (iOS)
-- Google Play Store (Android)
-- Expo Application Services (EAS)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
+## 📄 License
 This project is licensed under the MIT License.
-
-## About
-[real-time-expert-session-booking.vercel.app](https://real-time-expert-session-booking.vercel.app)

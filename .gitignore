@@ -105,3 +105,15 @@ ios/
 # OS
 .DS_Store
 Thumbs.db
+
+# Presentations & Synopsis (Excluded for code-only repository)
+*.pptx
+*.docx
+*.pdf
+kiet submisoon/
+kiet submission/
+build_kiet_presentation.py
+generate_presentation.py
+test_template.pptx
+test_remove.pptx
+kiet_logo.png

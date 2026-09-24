@@ -1,14 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
+const { protect, expert, admin } = require('../middleware/authMiddleware');
 
-// POST /api/bookings - Create a new booking
-router.post('/', bookingController.createBooking);
+// Consumer routes
+router.post('/', protect, bookingController.createBooking);
+router.get('/my', protect, bookingController.getCustomerBookings);
+router.get('/:id', protect, bookingController.getBookingById);
 
-// GET /api/bookings?email= - Get bookings by email
-router.get('/', bookingController.getBookingsByEmail);
+// Host routes
+router.get('/host/all', protect, expert, bookingController.getExpertBookings);
 
-// PATCH /api/bookings/:id/status - Update booking status
-router.patch('/:id/status', bookingController.updateBookingStatus);
+// Admin routes
+router.get('/admin/all', protect, admin, bookingController.getAllBookings);
+
+// Shared status update (user can cancel, expert can confirm/complete/cancel)
+router.patch('/:id/status', protect, bookingController.updateBookingStatus);
 
 module.exports = router;

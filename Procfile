@@ -1,1 +1,1 @@
-web: node test-api.js
+web: npm start

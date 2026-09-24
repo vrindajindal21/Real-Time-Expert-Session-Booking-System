@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
+    "server": "nodemon server/index.js",
+    "web": "npm --prefix web run dev",
     "install-deps": "npm install && cd mobile && npm install"
   },
   "keywords": [
